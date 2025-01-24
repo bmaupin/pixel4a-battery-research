@@ -504,3 +504,26 @@ Research for [Pixel 4a Battery Performance Program](https://wiki.rossmanngroup.c
       Files sunfish-tq3a.230805.001.s1/boot/kernel and sunfish-tq3a.230805.001.s2/boot/kernel differ
       Files sunfish-tq3a.230805.001.s1/boot/ramdisk and sunfish-tq3a.230805.001.s2/boot/ramdisk differ
       ```
+
+   1. Extract ramdisk
+
+      ```
+      $ file ramdisk
+      ramdisk: gzip compressed data, from Unix, original size modulo 2^32 36036864
+      $ mv ramdisk ramdisk.cpio.gz
+      $ gunzip ramdisk.cpio.gz
+      $ file ramdisk.cpio
+      ramdisk.cpio: ASCII cpio archive (SVR4 with no CRC)
+      $ mkdir ramdisk
+      $ cd ramdisk
+      $ cpio -idv < ../ramdisk.cpio
+      ```
+
+   1. Compare ramdisk
+
+      ```
+      $ diff -rq sunfish-tq3a.230805.001.s1/boot/ramdisk sunfish-tq3a.230805.001.s2/boot/ramdisk 2>/dev/null
+      Files sunfish-tq3a.230805.001.s1/boot/ramdisk/default.prop and sunfish-tq3a.230805.001.s2/boot/ramdisk/default.prop differ
+      Files sunfish-tq3a.230805.001.s1/boot/ramdisk/prop.default and sunfish-tq3a.230805.001.s2/boot/ramdisk/prop.default differ
+      Files sunfish-tq3a.230805.001.s1/boot/ramdisk/system/etc/ramdisk/build.prop and sunfish-tq3a.230805.001.s2/boot/ramdisk/system/etc/ramdisk/build.prop differ
+      ```
