@@ -1,6 +1,35 @@
 Research for [Pixel 4a Battery Performance Program](https://wiki.rossmanngroup.com/wiki/Pixel_4a_Battery_Performance_Program)
 
-#### Research changes made in latest update (TQ3A.230805.001.S2)
+#### Build information
+
+```
+ro.build.description=sunfish-user 13 TQ3A.230805.001.S1 10786265 release-keys
+ro.vendor.build.date=Sat Sep  9 13:24:08 UTC 2023
+ro.vendor.build.svn=65
+```
+
+```
+ro.build.description=sunfish-user 13 TQ3A.230805.001.S2 12655424 release-keys
+ro.vendor.build.date=Thu Nov 14 10:07:56 UTC 2024
+ro.vendor.build.svn=66
+```
+
+## Research changes in source code
+
+#### sunfish-sepolicy
+
+Nothing relevant
+
+#### sunfish
+
+Nothing relevant
+
+```
+git for-each-ref --sort=-creatordate --format='%(refname:short) %(creatordate)' refs/tags/ | head -n 1
+android-13.0.0_r84 Wed Jan 8 10:44:41 2025 -0800
+```
+
+## Research changes made in latest update (TQ3A.230805.001.S2)
 
 1. Download images from https://developers.google.com/android/images
 
