@@ -24,10 +24,88 @@ Nothing relevant
 
 Nothing relevant
 
+#### sunfish-kernel
+
 ```
-git for-each-ref --sort=-creatordate --format='%(refname:short) %(creatordate)' refs/tags/ | head -n 1
-android-13.0.0_r84 Wed Jan 8 10:44:41 2025 -0800
+commit f0e5311ad616d4c3c7a7d4580d330bb33a958cd4
+Author: Jenny Ho <hsiufangho@google.com>
+Date:   Tue Nov 12 15:42:03 2024 +0800
+
+    sunfish kernel prebuilt
+
+    Update device tree setting
+    http://pa/q/topic:%22s5_chg_profile%22
+
+    Bug: 376505184
+    Signed-off-by: Jenny Ho <hsiufangho@google.com>
+    (cherry picked from https://googleplex-android-review.googlesource.com/q/commit:a6920838f65a9eeb29ba45c490cd771a0951ef62)
+    Merged-In: I19d6385960e495e800d9a165b0813d27b0399462
+    Change-Id: I19d6385960e495e800d9a165b0813d27b0399462
 ```
+
+1. List tags
+
+1. Check out latest release tag
+
+   git checkout android-13.0.0_r84
+
+1. Git log
+
+   ```
+   commit fa3a4a090e621d698e8497a954f9ba8e0727c6aa (HEAD, tag: android-13.0.0_r84, origin/android13-qpr3-s15-release)
+   Date:   Thu Nov 14 09:55:56 2024 +0000
+   ```
+
+   Previous?
+
+   ```
+   commit ea454932fc1c72bbe3ff24a5bee146411c5b7fbd (tag: android-13.0.0_r83, origin/android13-qpr3-s14-release)
+   Date:   Sat Sep 9 13:06:43 2023 +0000
+   ```
+
+1. Check out corresponding branch
+
+   ```
+   git checkout android13-qpr3-s15-release
+   ```
+
+#### kernel/msm
+
+Is this the kernel source???
+
+- Most recent branch is android-msm-sunfish-4.14-android13-qpr3, most recent commit 2023-04-27
+
+#### kernel/build
+
+Most ecent commit 2020-05-16
+
+#### kernel/msm-extra
+
+Most recent commit 2022-08-14
+
+#### kernel/msm-modules/data-kernel
+
+Most recent commit 2022-01-04
+
+#### kernel/msm-modules/qca-wfi-host-cmn
+
+Most recent commit 2023-05-08
+
+#### kernel/msm-modules/qcacld
+
+Most recent commit 2023-05-08
+
+#### kernel/msm-modules/wlan-fw-api
+
+Most recent commit 2020-10-02
+
+#### kernel/msm-modules/fts_touch
+
+Most recent commit 2020-03-27
+
+#### kernel/msm-modules/fts_touch_s5
+
+Most recent commit 2020-04-17
 
 ## Research changes made in latest update (TQ3A.230805.001.S2)
 
