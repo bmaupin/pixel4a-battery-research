@@ -1,21 +1,5 @@
 ## Research changes in source code
 
-#### Changes in kernel binary
-
-Added text:
-
-```
-6google_battery: update debug_chg_profile:%d -> %d
-```
-
-```
-6google_battery: time to full not available
-```
-
-```
-3google_battery: cannot register power supply notifer, ret=%d
-```
-
 #### sunfish-sepolicy
 
 Nothing relevant

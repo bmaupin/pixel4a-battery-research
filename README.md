@@ -48,7 +48,8 @@ Date:   Tue Nov 12 15:42:03 2024 +0800
 (https://android.googlesource.com/device/google/sunfish-kernel/+/f0e5311ad616d4c3c7a7d4580d330bb33a958cd4)
 
 - What is `http://pa`? Some kind of internal Google link?
-- `chg_profile`: Charge profile?
+- `s5_chg_profile`: Charge profile? What is S5?
+  - Getting my battery serial number with `adb shell cat /sys/class/power_supply/battery/serial_number`, characters 26-27 are `S5`. Is this how problematic batteries are being identified?
 - `Bug: 376505184`: Is this it?: https://issuetracker.google.com/issues/376505184
 - Link not publicly accessible: https://googleplex-android-review.googlesource.com/q/commit:a6920838f65a9eeb29ba45c490cd771a0951ef62
 
