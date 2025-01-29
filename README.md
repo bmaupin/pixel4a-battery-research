@@ -1,6 +1,16 @@
 Research for [Pixel 4a Battery Performance Program](https://wiki.rossmanngroup.com/wiki/Pixel_4a_Battery_Performance_Program)
 
-See [docs/research.md](docs/research.md) for more notes
+## Summary
+
+The recent update to the Pixel 4a (`TQ3A.230805.001.S2`) includes an update to the kernel:
+
+https://android.googlesource.com/device/google/sunfish-kernel/+/f0e5311ad616d4c3c7a7d4580d330bb33a958cd4
+
+However it seems that the kernel sources haven't been updated:
+
+https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-sunfish-4.14-android13-qpr3
+
+What was changed?
 
 #### Build information
 
@@ -47,6 +57,7 @@ Date:   Tue Nov 12 15:42:03 2024 +0800
 
 (https://android.googlesource.com/device/google/sunfish-kernel/+/f0e5311ad616d4c3c7a7d4580d330bb33a958cd4)
 
+- Date of change corresponds very closely with build date of latest image (`Thu Nov 14 10:07:56 UTC 2024`)
 - What is `http://pa`? Some kind of internal Google link?
 - `s5_chg_profile`: Charge profile? What is S5?
   - Getting my battery serial number with `adb shell cat /sys/class/power_supply/battery/serial_number`, characters 26-27 are `S5`. Is this how problematic batteries are being identified?
@@ -127,3 +138,7 @@ https://support.google.com/pixelphone/answer/13202895
    e.g. for Pixel 4a it's `android-13.0.0_r84`
 
 1. Follow steps here to download source: https://source.android.com/docs/setup/download
+
+## Dump of more research
+
+See [docs/research.md](docs/research.md)
