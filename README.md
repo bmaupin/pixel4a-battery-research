@@ -82,16 +82,36 @@ Date:   Thu Apr 27 14:52:27 2023 +0800
 1. Diff
 
    ```
-   $ diff <(strings Image-s1 | egrep -i 'battery|chg_profile' | sort) <(strings Image-s2 | egrep -i 'battery|chg_profile' | sort) | egre
-   p '^<|^>'
+   $ diff <(strings Image-s1 | egrep -i 'battery|charger|chg.profile' | sort) <(strings Image-s2 | egrep -i 'battery|charger|chg.profile' | sort) | egrep '^<|^>'
    > 3google_battery: cannot register power supply notifer, ret=%d
+   > 3google_charger: Cannot register power supply notifer, ret=%d
    > 6google_battery: time to full not available
    > 6google_battery: update debug_chg_profile:%d -> %d
+   > 6google_charger: MSC_RESET: charge full in unexpected soc.
    > chg_profile_switch
    > google_debug_chg_profile
+   > google,enable-switch-chg-profile
    ```
 
    👉 It seems these strings have been added to the s2 image but aren't in the kernel source
+
+#### Other kernel differences
+
+```
+$ strings Image-s1 | grep entry.S
+/buildbot/src/partner-android/t-dev-msm-pixel-4.14-tm-qpr3/private/msm-google/arch/arm64/kernel/entry.S
+
+$ strings Image-s2 | grep entry.S
+/usr/local/google/home/hsiufangho/android-msm-pixel-4.14-tm-qpr3/private/msm-google/arch/arm64/kernel/entry.S
+```
+
+```
+$ strings Image-s1 | grep "Linux version 4"
+Linux version 4.14.302-g6ff6ddc33f7d-ab10092322 (android-build@abfarm-2004-4012) (Android (7284624, based on r416183b) clang version 12.0.5 (https://android.googlesource.com/toolchain/llvm-project c935d99d7cf2016289302412d708641d52d2f7ee), LLD 12.0.5 (/buildbot/src/android/llvm-toolchain/out/llvm-project/lld c935d99d7cf2016289302412d708641d52d2f7ee)) #1 SMP PREEMPT Tue May 9 09:35:06 UTC 2023
+
+$ strings Image-s2 | grep "Linux version 4"
+Linux version 4.14.302-g92e0d94b6cba (hsiufangho@hsiufanghocloud0.c.googlers.com) (Android (7284624, based on r416183b) clang version 12.0.5 (https://android.googlesource.com/toolchain/llvm-project c935d99d7cf2016289302412d708641d52d2f7ee), LLD 12.0.5 (/buildbot/src/android/llvm-toolchain/out/llvm-project/lld c935d99d7cf2016289302412d708641d52d2f7ee)) #1 repo:t-dev-msm-pixel-4.14-tm-qpr3 SMP PREEMPT Tue Nov 12 11:1
+```
 
 ## Other notes
 
