@@ -2,15 +2,45 @@ Research for [Pixel 4a Battery Performance Program](https://wiki.rossmanngroup.c
 
 ## Summary
 
-The recent update to the Pixel 4a (`TQ3A.230805.001.S2`) includes an update to the kernel:
+Google recently updated the Pixel 4a. The new update (`TQ3A.230805.001.S2`) drastically reduces battery life.
 
-https://android.googlesource.com/device/google/sunfish-kernel/+/f0e5311ad616d4c3c7a7d4580d330bb33a958cd4
+I tried to do some research to determine what was done but only made little progress.
 
-However it seems that the kernel sources haven't been updated:
+However, someone who works closely with the Linux kernel did an analysis: https://social.treehouse.systems/@marcan/113914172433692339
 
-https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-sunfish-4.14-android13-qpr3
+#### What was changed?
 
-What was changed?
+According to https://social.treehouse.systems/@marcan/113914172433692339 :
+
+Certain batteries seem to have been identified by Google as being defective. These batteries:
+
+- Have had capacity reduced by half (from 3080 mAh to 1539 mAh)
+- Have had charging voltage reduced from 4.44 volts to 3.95 volts
+- Are now marked as "dead" by the kernel
+
+#### Determine if battery is impacted by the new update
+
+1. Install adb and follow the instructions to enable adb debugging on your phone: https://developer.android.com/tools/adb
+
+2. Run this command:
+
+   ```
+   adb shell cat /sys/class/power_supply/battery/serial_number
+   ```
+
+If your serial number contains this string, it will be impacted by the battery performance update:
+
+```
+8230020501
+```
+
+If your serial number contains this string, your battery is unaffected:
+
+```
+8230015901
+```
+
+## My research
 
 #### Build information
 
@@ -33,8 +63,6 @@ Previous build:
   ro.vendor.build.date=Sat Sep  9 13:24:08 UTC 2023
   ro.vendor.build.svn=65
   ```
-
-## High-level notes
 
 #### Latest binary kernel
 
