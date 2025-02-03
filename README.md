@@ -10,10 +10,10 @@ According to https://social.treehouse.systems/@marcan/113914172433692339 :
 
 Certain batteries seem to have been identified by Google as being defective. These batteries:
 
-- Have had capacity artificially reduced by half (from 3080 mAh to 1540 mAh)
+- Have had capacity artificially reduced by half (from 3080 mAh to 1539 mAh)
 - Have had charging voltage reduced from 4.44 volts to 3.95 volts
 
-#### Determine if battery is impacted by the new update
+#### How do I know if I'm impacted?
 
 1. Install adb and follow the instructions to enable adb debugging on your phone: https://developer.android.com/tools/adb
 
@@ -35,103 +35,25 @@ If your serial number contains this string, your battery is unaffected:
 8230015901
 ```
 
-#### More info on Hector Martin's analysis
+#### What should I do if I'm impacted
 
-After reading the analysis at https://social.treehouse.systems/@marcan/113914172433692339 I was curious how he came up with it.
+Since Google believes there is enough of a problem with bad batteries to severely limit battery life, the best option is to take advantage of Google's offer to replace the battery for free if you're able to: https://support.google.com/pixelphone?p=pixel4a_battery_help
 
-He confirmed my finding that the kernel was changed whereas the source has not been changed.
+⚠️ Any other action to bypass the battery update is at your own risk. Although Google has remained silent as to the possible risk, if it has taken such drastic measures then it means the battery could catch fire or explode. If you're willing to accept the risk:
 
-What I found particularly interesting is he said:
+Alternatively or as a temporary measure, you can block the battery update: https://www.reddit.com/r/Pixel4a/s/ghnkFVDUX9
 
-> The base device tree is unchanged, but the overlays change
+A longer-term solution if you're unable to replace the battery or while you're waiting for battery replacement is to install custom firmware. Lots of options are available, but LineageOS is one of the more popular options. This will also allow you implement other mitigations such as limiting the battery charge to 80%. More information here: https://news.ycombinator.com/item?id=42869207
 
-Looking into this some more, the overlays appear to be here in the source:
+You can also use a device such as a [Chargie](https://chargie.org/) to limit the battery charge.
 
-- Affected battery: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-sunfish-4.14-android13-qpr3/arch/arm64/boot/dts/google/batterydata-qcom-s5-SWD-LSN.dtsi
-- Unaffected battery: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-sunfish-4.14-android13-qpr3/arch/arm64/boot/dts/google/batterydata-qcom-s5-SWD-ATL.dtsi
+#### More information
 
-Because the source hasn't been updated, we can't see changes to them.
+- [Google's support article](https://support.google.com/pixelphone/answer/15701861)
+- [Article at Louis Rossmann's wiki](https://wiki.rossmanngroup.com/wiki/Pixel_4a_Battery_Performance_Program)
+- [Technical analysis from Hector Martin](https://social.treehouse.systems/@marcan/113914172433692339)
 
-However, apparently those .dtsi overlay files are used to create a dtbo.img file, and we can see that the latest kernel binaries contain such a file: https://android.googlesource.com/device/google/sunfish-kernel/+/f0e5311ad616d4c3c7a7d4580d330bb33a958cd4%5E%21/#F6
-
-To extract the files:
-
-```
-# Get mkdtboimg.py
-git clone https://android.googlesource.com/platform/system/libufdt
-cd libufdt/utils
-
-# Use mkdtboimg.py to dump device tree offsets, e.g.
-python3 mkdtboimg.py dump path/to/dtbo.img | egrep "entry|size|offset"
-
-# Use these offsets to extract device tree files, e.g.
-git checkout android-13.0.0_r83
-mkdir -p dtb-s1
-cd dtb-s1
-
-offsets=(288 251399 501509 751619 1001781 1251957 1501947 1753058)
-sizes=(251111 250110 250110 250162 250176 249990 251111 249990)
-
-for i in "${!offsets[@]}"; do
-    dd if=../dtbo.img of=dtbo_$i.dtb bs=1 skip="${offsets[$i]}" count="${sizes[$i]}"
-done
-
-# Convert DTBO to DTS
-for dtb in dtbo_*.dtb; do
-    dtc -I dtb -O dts "$dtb" -o "${dtb%.dtb}.dts"
-done
-
-git checkout android-13.0.0_r84
-mkdir dtb-s2
-cd dtb-s2
-offsets=(288 250864 501492 753069 1003645 1255222 1505864 1756320)
-sizes=(250576 250628 251577 250576 251577 250642 250456 250456)
-
-for i in "${!offsets[@]}"; do
-    dd if=../dtbo.img of=dtbo_$i.dtb bs=1 skip="${offsets[$i]}" count="${sizes[$i]}"
-done
-
-# Convert DTBO to DTS
-for dtb in dtbo_*.dtb; do
-    dtc -I dtb -O dts "$dtb" -o "${dtb%.dtb}.dts"
-done
-```
-
-Now you can see the changes to the charging voltage that Hector showed:
-
-```
-$ diff -u dtb-s1/dtbo_0.dts dtb-s2/dtbo_0.dts | grep -A 4 4255777_Google_S5_SWD_LSN_3080mAH_PM7150
-                                qcom,4255777_Google_S5_SWD_LSN_3080mAH_PM7150 {
--                                       qcom,max-voltage-uv = <0x43e6d0>;
--                                       qcom,fg-cc-cv-threshold-uv = <0x43bfc0>;
-+                                       qcom,max-voltage-uv = <0x3c45b0>;
-+                                       qcom,fg-cc-cv-threshold-uv = <0x3c45b0>;
-```
-
-Max voltage has been reduced from `0x43e6d0` (4450000) to `0x3c45b0` (3950000)
-
-Examining the S2 dts file, you can see a new charging profile was added (`google_debug_chg_profile`):
-
-```
-$ grep -B 1 chg-battery-capacity dtb-s2/dtbo_0.dts
-                                google,chg-battery-default-capacity = <0xc08>;
-                                google,chg-battery-capacity = <0xc08>;
---
-                                google_debug_chg_profile {
-                                        google,chg-battery-capacity = <0x604>;
-```
-
-Capacity has been reduced from `0xc08` (3080) to `0x604` (1540) (I'm not sure why he said 1539 but it's effectively the same).
-
-#### Other observations
-
-I was able to see the following differences from a device with the new update to a device without it, both with affected batteries:
-
-- `/sys/class/power_supply/battery/chg_profile_switch` appears only after the update, assumingly related to the new charging profile (more below)
-- `/sys/class/power_supply/battery/health` returns `Good` before the update and `Dead` after the update
-- `/sys/class/power_supply/battery/soh` ([state of health](https://en.wikipedia.org/wiki/State_of_health)) changes from `1` to `0`
-
-## My research on the kernel changes
+## My research
 
 Before Hector Martin posted [his analysis](https://social.treehouse.systems/@marcan/113914172433692339), I attempted to do my own. I didn't make much progress, but I've left my research below.
 
@@ -245,6 +167,102 @@ Linux version 4.14.302-g6ff6ddc33f7d-ab10092322 (android-build@abfarm-2004-4012)
 $ strings Image-s2 | grep "Linux version 4"
 Linux version 4.14.302-g92e0d94b6cba (hsiufangho@hsiufanghocloud0.c.googlers.com) (Android (7284624, based on r416183b) clang version 12.0.5 (https://android.googlesource.com/toolchain/llvm-project c935d99d7cf2016289302412d708641d52d2f7ee), LLD 12.0.5 (/buildbot/src/android/llvm-toolchain/out/llvm-project/lld c935d99d7cf2016289302412d708641d52d2f7ee)) #1 repo:t-dev-msm-pixel-4.14-tm-qpr3 SMP PREEMPT Tue Nov 12 11:1
 ```
+
+#### More info on Hector Martin's analysis
+
+After reading the analysis at https://social.treehouse.systems/@marcan/113914172433692339 I was curious how he came up with it.
+
+He confirmed my finding that the kernel was changed whereas the source has not been changed.
+
+What I found particularly interesting is he said:
+
+> The base device tree is unchanged, but the overlays change
+
+Looking into this some more, the overlays appear to be here in the source:
+
+- Affected battery: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-sunfish-4.14-android13-qpr3/arch/arm64/boot/dts/google/batterydata-qcom-s5-SWD-LSN.dtsi
+- Unaffected battery: https://android.googlesource.com/kernel/msm/+/refs/heads/android-msm-sunfish-4.14-android13-qpr3/arch/arm64/boot/dts/google/batterydata-qcom-s5-SWD-ATL.dtsi
+
+Because the source hasn't been updated, we can't see changes to them.
+
+However, apparently those .dtsi overlay files are used to create a dtbo.img file, and we can see that the latest kernel binaries contain such a file: https://android.googlesource.com/device/google/sunfish-kernel/+/f0e5311ad616d4c3c7a7d4580d330bb33a958cd4%5E%21/#F6
+
+To extract the files:
+
+```
+# Get mkdtboimg.py
+git clone https://android.googlesource.com/platform/system/libufdt
+cd libufdt/utils
+
+# Use mkdtboimg.py to dump device tree offsets, e.g.
+python3 mkdtboimg.py dump path/to/dtbo.img | egrep "entry|size|offset"
+
+# Use these offsets to extract device tree files, e.g.
+git checkout android-13.0.0_r83
+mkdir -p dtb-s1
+cd dtb-s1
+
+offsets=(288 251399 501509 751619 1001781 1251957 1501947 1753058)
+sizes=(251111 250110 250110 250162 250176 249990 251111 249990)
+
+for i in "${!offsets[@]}"; do
+    dd if=../dtbo.img of=dtbo_$i.dtb bs=1 skip="${offsets[$i]}" count="${sizes[$i]}"
+done
+
+# Convert DTBO to DTS
+for dtb in dtbo_*.dtb; do
+    dtc -I dtb -O dts "$dtb" -o "${dtb%.dtb}.dts"
+done
+
+git checkout android-13.0.0_r84
+mkdir dtb-s2
+cd dtb-s2
+offsets=(288 250864 501492 753069 1003645 1255222 1505864 1756320)
+sizes=(250576 250628 251577 250576 251577 250642 250456 250456)
+
+for i in "${!offsets[@]}"; do
+    dd if=../dtbo.img of=dtbo_$i.dtb bs=1 skip="${offsets[$i]}" count="${sizes[$i]}"
+done
+
+# Convert DTBO to DTS
+for dtb in dtbo_*.dtb; do
+    dtc -I dtb -O dts "$dtb" -o "${dtb%.dtb}.dts"
+done
+```
+
+Now you can see the changes to the charging voltage that Hector showed:
+
+```
+$ diff -u dtb-s1/dtbo_0.dts dtb-s2/dtbo_0.dts | grep -A 4 4255777_Google_S5_SWD_LSN_3080mAH_PM7150
+                                qcom,4255777_Google_S5_SWD_LSN_3080mAH_PM7150 {
+-                                       qcom,max-voltage-uv = <0x43e6d0>;
+-                                       qcom,fg-cc-cv-threshold-uv = <0x43bfc0>;
++                                       qcom,max-voltage-uv = <0x3c45b0>;
++                                       qcom,fg-cc-cv-threshold-uv = <0x3c45b0>;
+```
+
+Max voltage has been reduced from `0x43e6d0` (4450000) to `0x3c45b0` (3950000)
+
+Examining the S2 dts file, you can see a new charging profile was added (`google_debug_chg_profile`):
+
+```
+$ grep -B 1 chg-battery-capacity dtb-s2/dtbo_0.dts
+                                google,chg-battery-default-capacity = <0xc08>;
+                                google,chg-battery-capacity = <0xc08>;
+--
+                                google_debug_chg_profile {
+                                        google,chg-battery-capacity = <0x604>;
+```
+
+Capacity has been reduced from `0xc08` (3080) to `0x604` (1540)
+
+#### Other observations
+
+I was able to see the following differences from a device with the new update to a device without it, both with affected batteries:
+
+- `/sys/class/power_supply/battery/chg_profile_switch` appears only after the update, assumingly related to the new charging profile (more below)
+- `/sys/class/power_supply/battery/health` returns `Good` before the update and `Dead` after the update
+- `/sys/class/power_supply/battery/soh` ([state of health](https://en.wikipedia.org/wiki/State_of_health)) changes from `1` to `0`
 
 ## Other notes
 
