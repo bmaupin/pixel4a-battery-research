@@ -6,12 +6,25 @@ Google recently updated the Pixel 4a. The new update (`TQ3A.230805.001.S2`) dras
 
 #### What was changed?
 
-According to https://social.treehouse.systems/@marcan/113914172433692339 :
+👉 Google has now posted [the source code of the updates](https://android.googlesource.com/kernel/msm/+log/refs/heads/android-msm-sunfish-4.14-android13-qpr3).
 
-Certain batteries seem to have been identified by Google as being defective. These batteries:
+[According to Google](https://support.google.com/pixelphone/answer/15701861):
 
-- Have had capacity artificially reduced by half (from 3080 mAh to 1539 mAh)
-- Have had charging voltage reduced from 4.44 volts to 3.95 volts
+> the software update reduces available battery capacity and impacts charging performance
+
+Analysis by [androidauthority.com](https://www.androidauthority.com/pixel-4a-battery-update-explained-3522417/):
+
+> - The Google Pixel 4a battery update does even more than we thought, reducing capacity by around 44% and halving the maximum charging speed on affected devices.
+> - The update also disables features like Adaptive Charging and charging time ETAs.
+> - Google made the update an Emergency Maintenance Release (EMR), which means it’s been trying to release it as quickly as possible.
+
+Analysis by [Hector Martin](https://social.treehouse.systems/@marcan/113914172433692339):
+
+> they lowered the max charge voltage from 4.44 V to 3.95 V
+
+> Only the "LSN" profile got the downgrade. ... LSN is probably Lishen [en.lishen.com.cn], which are the manufacturers of the actual cells.
+
+> Battery capacity goes down from 3080mAh to 1539mAh!
 
 #### How do I know if I'm impacted?
 
@@ -23,17 +36,21 @@ Certain batteries seem to have been identified by Google as being defective. The
    adb shell cat /sys/class/power_supply/battery/serial_number
    ```
 
-If your serial number contains this string, it will be impacted by the battery performance update:
+If your serial number contains this string, it is an LSN battery and will be negatively impacted by the battery performance update:
 
 ```
 8230020501
 ```
 
-If your serial number contains this string, your battery is unaffected:
+If your serial number contains this string, your battery is ATL and mostly unaffected:
 
 ```
 8230015901
 ```
+
+According to [androidauthority.com](https://www.androidauthority.com/pixel-4a-battery-update-explained-3522417/), this is the only impact to ATL batteries:
+
+> Google also added a check for ATL cells — if they exceed 800 cycles, a health issue will be reported ... but it won’t trigger the same mitigations.
 
 #### What should I do if I'm impacted
 
